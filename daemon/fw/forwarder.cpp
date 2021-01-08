@@ -275,8 +275,10 @@ Forwarder::onInterestFinalize(const shared_ptr<pit::Entry>& pitEntry)
   }
 
   // PIT delete
-  pitEntry->expiryTimer.cancel();
-  m_pit.erase(pitEntry.get());
+  if (!pitEntry->hasSubscriber()){
+    pitEntry->expiryTimer.cancel();
+    m_pit.erase(pitEntry.get());
+  }
 }
 
 void

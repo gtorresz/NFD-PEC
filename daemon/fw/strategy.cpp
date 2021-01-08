@@ -251,6 +251,7 @@ void
 Strategy::sendDataToAll(const shared_ptr<pit::Entry>& pitEntry,
                         const FaceEndpoint& ingress, const Data& data)
 {
+  NFD_LOG_DEBUG("sendData in=" << ingress << " pitEntry=" << pitEntry->getName());
   std::set<Face*> pendingDownstreams;
   auto now = time::steady_clock::now();
 
@@ -265,6 +266,11 @@ Strategy::sendDataToAll(const shared_ptr<pit::Entry>& pitEntry,
     }
   }
 
+  //add start 
+  for (const pit::InRecord& inRecord : pitEntry->getSubRecords()) {
+      pendingDownstreams.emplace(&inRecord.getFace());
+  }
+  //add end
   for (const auto& pendingDownstream : pendingDownstreams) {
     this->sendData(pitEntry, data, FaceEndpoint(*pendingDownstream, 0));
   }

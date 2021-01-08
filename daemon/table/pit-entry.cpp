@@ -68,6 +68,17 @@ Entry::insertOrUpdateInRecord(Face& face, const Interest& interest)
   }
 
   it->update(interest);
+  //add start
+  if (interest.getSubscription() != 0){
+    auto it1 = std::find_if(m_subInRecords.begin(), m_subInRecords.end(),
+      [&face] (const InRecord& inRecord) { return &inRecord.getFace() == &face; });
+    if (it1 == m_subInRecords.end()) {
+      m_subInRecords.emplace_front(face);
+      it1 = m_subInRecords.begin();
+    }
+    it1->update(interest);
+  }
+  //add end
   return it;
 }
 

@@ -96,6 +96,14 @@ public: // in-record
     return m_inRecords;
   }
 
+  //add start
+  const InRecordCollection&
+  getSubRecords() const
+  {
+    return m_subInRecords;
+  }
+  //add end
+
   /** \retval true There is at least one in-record.
    *               This implies some downstream is waiting for Data or Nack.
    *  \retval false There is no in-record.
@@ -130,6 +138,32 @@ public: // in-record
   {
     return m_inRecords.end();
   }
+
+  //add start
+  InRecordCollection::iterator
+  sub_begin()
+  {
+    return m_subInRecords.begin();
+  }
+
+  InRecordCollection::const_iterator
+  sub_begin() const
+  {
+    return m_subInRecords.begin();
+  }
+
+  InRecordCollection::iterator
+  sub_end()
+  {
+    return m_subInRecords.end();
+  }
+
+  InRecordCollection::const_iterator
+  sub_end() const
+  {
+    return m_subInRecords.end();
+  }
+  // add end
 
   /** \brief get the in-record for \p face
    *  \return an iterator to the in-record, or in_end() if it does not exist
@@ -231,9 +265,20 @@ public:
    */
   time::milliseconds dataFreshnessPeriod = 0_ms;
 
+  //add start
+  bool
+  hasSubscriber()
+  {
+     return !m_subInRecords.empty();
+  }
+  //add end
+  
 private:
   shared_ptr<const Interest> m_interest;
   InRecordCollection m_inRecords;
+  //add start
+  InRecordCollection m_subInRecords;
+  //add end
   OutRecordCollection m_outRecords;
 
   name_tree::Entry* m_nameTreeEntry = nullptr;
