@@ -70,9 +70,13 @@ intelStrategy::afterReceiveInterest(const FaceEndpoint& ingress, const Interest&
   const fib::NextHopList& nexthops = fibEntry.getNextHops();
 
   int nEligibleNextHops = 0;
-
   bool isSuppressed = false;
 
+  if(interest.getName().getSubName(1,1).toUri()=="/baseQuery"){
+          std::cout<<interest.getName()<<std::endl;
+	  this->rejectPendingInterest(pitEntry);
+          return;
+  }
   for (const auto& nexthop : nexthops) {
     Face& outFace = nexthop.getFace();
 
@@ -91,7 +95,7 @@ intelStrategy::afterReceiveInterest(const FaceEndpoint& ingress, const Interest&
 
     Interest interest2 = interest;
    interest2.setSubscription(0);
-   std::cout<<interest2.getSubscription()<< " " << interest.getSubscription()<<std::endl; 
+   //std::cout<<interest2.getSubscription()<< " " << interest.getSubscription()<<std::endl; 
     this->sendInterest(pitEntry, FaceEndpoint(outFace, 0), interest2);
     NFD_LOG_DEBUG(interest << " from=" << ingress << " pitEntry-to=" << outFace.getId());
 

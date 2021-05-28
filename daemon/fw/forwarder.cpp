@@ -92,6 +92,18 @@ Forwarder::~Forwarder() = default;
 void
 Forwarder::onIncomingInterest(const FaceEndpoint& ingress, const Interest& interest)
 {
+  if(interest.getHopLimit().has_value()){
+  int hl = interest.getHopLimit().value();
+  int hopCount = 0;
+	auto hopCountTag = interest.getTag<lp::HopCountTag>();
+
+	if ( hopCountTag != nullptr ) { // e.g., packet came from local node's cache
+		hopCount = *hopCountTag;
+	}
+        if(hl < hopCount){
+           return;
+        }
+}
   // receive Interest
   NFD_LOG_DEBUG("onIncomingInterest in=" << ingress << " interest=" << interest.getName());
   interest.setTag(make_shared<lp::IncomingFaceIdTag>(ingress.face.getId()));
@@ -261,6 +273,7 @@ Forwarder::onInterestFinalize(const shared_ptr<pit::Entry>& pitEntry)
 
   if (!pitEntry->isSatisfied) {
     beforeExpirePendingInterest(*pitEntry);
+
   }
 
   // Dead Nonce List insert if necessary
@@ -275,10 +288,13 @@ Forwarder::onInterestFinalize(const shared_ptr<pit::Entry>& pitEntry)
   }
 
   // PIT delete
-  if (!pitEntry->hasSubscriber()){
+  //add start 
+  if (!pitEntry->hasSubscriber()){ 
+  //add end
     pitEntry->expiryTimer.cancel();
     m_pit.erase(pitEntry.get());
-  }
+  //add start
+  }//add end
 }
 
 void
@@ -302,6 +318,7 @@ Forwarder::onIncomingData(const FaceEndpoint& ingress, const Data& data)
   pit::DataMatchResult pitMatches = m_pit.findAllDataMatches(data);
   if (pitMatches.size() == 0) {
     // goto Data unsolicited pipeline
+
     this->onDataUnsolicited(ingress, data);
     return;
   }
